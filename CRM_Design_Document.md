@@ -567,20 +567,21 @@ Content-Type: application/json
 - `customer`: Required, max 200 characters
 - `submittedVia`: Required, must be one of: Email, Phone, Portal, Meeting
 - `requestDate`: Required, cannot be future date
-- `requestType`: Required, max 100 characters
-- `regulations`: Required, array with at least one item
+- `requestType`: Required, must be one of: Declaration, Clarification, Other
+- `regulations`: Required, array with at least one item from: RoHS, REACH, TSCA PBT, Prop 65, Conflict Minerals, FMD
 - `assignedTo`: Required, must be valid user email in tenant
 - `deadline`: Required, must be after requestDate
 - `comments`: Optional, max 2000 characters
 
-**Duplicate Detection:**
-- System checks for existing request with same customer + requestType + regulations
-- If duplicate found, returns 409 Conflict with existing request details
+**Business Rules:**
+- Only Managers can create requests
+- System auto-calculates isOverdue flag based on deadline
+- Request status defaults to "Open"
 
 **Error Responses:**
 - `400 Bad Request` - Validation errors
 - `401 Unauthorized` - Invalid token
-- `409 Conflict` - Duplicate request detected
+- `403 Forbidden` - User role is not Manager
 - `500 Internal Server Error` - Server error
 
 ---
@@ -589,14 +590,18 @@ Content-Type: application/json
 
 **Endpoint:** `GET /api/crm/requests`
 
+**Role Required:** Manager
+
 **Query Parameters:**
 ```
 page: number (default: 1)
 limit: number (default: 20, max: 100)
-status: string (filter by status)
+status: string (filter by status: Open, In Progress, Resolved, Closed, On Hold)
 customer: string (filter by customer name)
-requestType: string (filter by type)
+requestType: string (filter by type: Declaration, Clarification, Other)
 assignedTo: string (filter by assignee email)
+isOverdue: boolean (filter overdue requests)
+regulations: string (filter by regulation)
 search: string (search across customer, requestId, comments)
 sortBy: string (default: "requestDate")
 sortOrder: "asc" | "desc" (default: "desc")
@@ -616,10 +621,11 @@ Authorization: Bearer <token>
       {
         "requestId": "CRM-2025-001",
         "customer": "Acme Corporation",
-        "requestType": "Compliance Data",
+        "requestType": "Declaration",
         "regulations": ["REACH", "RoHS"],
         "assignedTo": "john.doe@company.com",
         "status": "In Progress",
+        "isOverdue": false,
         "requestDate": "2025-11-10",
         "deadline": "2025-11-30",
         "createdAt": "2025-11-12T10:00:00Z"
@@ -635,17 +641,25 @@ Authorization: Bearer <token>
 }
 ```
 
+**Error Responses:**
+- `401 Unauthorized` - Invalid token
+- `403 Forbidden` - User role is not Manager
+- `500 Internal Server Error` - Server error
+
 ---
 
 ### 7.3 Get My Tasks
 
 **Endpoint:** `GET /api/crm/my-tasks`
 
+**Role Required:** All users (Manager and User)
+
 **Query Parameters:**
 ```
 page: number (default: 1)
 limit: number (default: 20)
 status: string (filter by status, default: shows Open + In Progress)
+isOverdue: boolean (filter overdue tasks)
 ```
 
 **Headers:**
@@ -837,6 +851,8 @@ CRM-2025-002,Beta Industries,Open,2025-12-15,jane.smith@company.com
 
 **Endpoint:** `GET /api/crm/dashboard/kpis`
 
+**Role Required:** Manager (full tenant metrics), User (personal metrics only)
+
 **Headers:**
 ```
 Authorization: Bearer <token>
@@ -853,36 +869,78 @@ Authorization: Bearer <token>
     "closedRequests": 85,
     "cancelledRequests": 20,
     "overdueRequests": 12,
+    "onHoldRequests": 8,
     "statusDistribution": {
       "Open": 45,
       "In Progress": 30,
       "Resolved": 10,
       "Closed": 85,
+      "On Hold": 8,
       "Cancelled": 20
     },
     "requestTypeBreakdown": {
-      "Compliance Data": 60,
-      "Sustainability Report": 40,
-      "Audit Support": 30,
-      "Certificate Request": 20
+      "Declaration": 80,
+      "Clarification": 50,
+      "Other": 20
     },
     "regulationHeatMap": {
-      "REACH": 80,
-      "RoHS": 60,
-      "CMRT": 40,
-      "Conflict Minerals": 35,
-      "TSCA": 25
+      "monthly": [
+        {
+          "regulation": "RoHS",
+          "data": [12, 15, 18, 20, 22, 25],
+          "months": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+          "colorIntensity": "high"
+        },
+        {
+          "regulation": "REACH",
+          "data": [10, 12, 14, 16, 18, 20],
+          "months": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+          "colorIntensity": "high"
+        },
+        {
+          "regulation": "TSCA PBT",
+          "data": [5, 6, 7, 8, 9, 10],
+          "months": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+          "colorIntensity": "medium"
+        },
+        {
+          "regulation": "Prop 65",
+          "data": [4, 5, 6, 7, 8, 9],
+          "months": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+          "colorIntensity": "medium"
+        },
+        {
+          "regulation": "Conflict Minerals",
+          "data": [8, 9, 10, 11, 12, 13],
+          "months": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+          "colorIntensity": "medium"
+        },
+        {
+          "regulation": "FMD",
+          "data": [3, 4, 5, 6, 7, 8],
+          "months": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
+          "colorIntensity": "low"
+        }
+      ],
+      "totalByRegulation": {
+        "RoHS": 112,
+        "REACH": 90,
+        "TSCA PBT": 45,
+        "Prop 65": 39,
+        "Conflict Minerals": 63,
+        "FMD": 33
+      }
     },
     "trendData": {
       "labels": ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar"],
       "datasets": [
         {
           "label": "Requests Created",
-          "data": [20, 25, 30, 28, 35, 45]
+          "data": [42, 51, 60, 68, 76, 85]
         },
         {
           "label": "Requests Closed",
-          "data": [15, 20, 22, 25, 28, 30]
+          "data": [35, 45, 52, 60, 68, 75]
         }
       ]
     },
@@ -890,11 +948,16 @@ Authorization: Bearer <token>
       "openCount": 5,
       "inProgressCount": 3,
       "overdueCount": 2,
-      "completedThisMonth": 8
+      "completedThisMonth": 8,
+      "personalCompletionTrend": [5, 6, 7, 8, 9, 8]
     }
   }
 }
 ```
+
+**Note:** 
+- Managers receive full tenant metrics including all requests and regulatory heat maps
+- Users receive only personal task metrics (myTasks section)
 
 ---
 
@@ -907,33 +970,75 @@ Authorization: Bearer <token>
   tenantNumber: "TENANT001",
   userId: "user123",
   userName: "John Doe",
-  role: "user",
+  role: "Manager" | "User",
   iat: 1699876543,
   exp: 1699905343
 }
 ```
 
 **Authorization Rules:**
-- All tenant users have equal access (no role restrictions)
-- Users can only see requests from their own tenant
-- All CRUD operations available to all tenant users
+- **Manager Role:** Full access to all CRM features
+  - Create, assign, cancel requests
+  - View All Requests
+  - Access full dashboard with tenant-wide metrics
+  - Export all requests
+- **User Role:** Limited access
+  - View and update only assigned requests (My Tasks)
+  - View personal metrics on dashboard
+  - Export own tasks
+  - Cannot create or cancel requests
+- Users can only see data from their own tenant
 - Tenant isolation enforced at database query level
+- Role verification enforced at API, service, and database layers
 
 ---
 
 ## 8. Failure Scenarios & Mitigations
 
-### 8.1 Duplicate Request Creation
+### 8.1 Unauthorized Access to Manager-Only Features
 
-**Scenario:** User attempts to create a request that already exists
+**Scenario:** User role attempts to access All Requests page or create a request
+
+**Impact:** Potential security breach, unauthorized data access
+
+**Mitigation:**
+- **Frontend Route Guards:** Redirect users to My Tasks if they attempt to access All Requests
+- **API Authorization:** Return 403 Forbidden if User role calls Manager-only endpoints
+- **Role Verification:** Check JWT token role on every request
+- **Audit Trail:** Log all unauthorized access attempts
+- **UI Hiding:** Hide Create Request and Cancel buttons for User role
+
+**Detection:** Monitor 403 Forbidden responses; audit log analysis
+
+---
+
+### 8.2 Overdue Request Not Flagged
+
+**Scenario:** Request passes deadline but isOverdue flag not updated
+
+**Impact:** Missed SLAs, customer dissatisfaction, resource misallocation
+
+**Mitigation:**
+- **Scheduled Job:** Daily cron job to update isOverdue flags for all requests past deadline
+- **Real-time Check:** Calculate isOverdue on-the-fly during API requests
+- **Dashboard Alert:** Highlight overdue count prominently on dashboard
+- **Email Notifications:** Send alerts for overdue requests (R2 feature)
+- **Automated Escalation:** Auto-assign priority to overdue requests (future)
+
+**Detection:** Dashboard shows overdue count; automated job logs
+
+---
+
+### 8.3 Duplicate Request Creation
+
+**Scenario:** Manager attempts to create a request that already exists
 
 **Impact:** Redundant work, data confusion, inflated KPIs
 
 **Mitigation:**
-- **Duplicate Detection:** Check for existing request with same customer + requestType + regulations
-- **User Feedback:** Show warning message: "Similar request exists: CRM-2025-001. Do you want to proceed anyway?"
-- **Soft Validation:** Allow user to override if they confirm request is different
-- **Audit Trail:** Log duplicate creation attempts for analysis
+- **Warning Message:** Show "Similar request may exist" with list of matching requests
+- **User Confirmation:** Allow manager to review and confirm if truly different
+- **Audit Trail:** Log all duplicate creation attempts for analysis
 
 **Detection:** Backend validation during request creation API call
 
