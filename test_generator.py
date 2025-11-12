@@ -128,6 +128,56 @@ def test_prompt_function():
     print("✓ Prompt function exists")
 
 
+def test_artifact_ingestion():
+    """Test artifact ingestion functionality."""
+    print("Test 6: Artifact ingestion...")
+    gen = DesignDocGenerator()
+    
+    # Test text ingestion
+    text = "Sample text for testing"
+    artifact = gen.ingest_text(text, "Test Artifact")
+    assert artifact is not None
+    assert artifact['type'] == 'text'
+    assert artifact['name'] == 'Test Artifact'
+    assert artifact['content'] == text
+    
+    # Test that artifacts list is maintained
+    gen.artifacts.append(artifact)
+    assert len(gen.artifacts) == 1
+    
+    print("✓ Artifact ingestion works")
+
+
+def test_document_with_artifacts():
+    """Test document generation includes artifacts."""
+    print("Test 7: Document with artifacts...")
+    gen = DesignDocGenerator()
+    gen.project_data = {
+        'project_name': 'Artifact Test',
+        'description': 'Test with artifacts',
+        'audience': 'engineering',
+        'author': 'Test',
+        'date': '2025-11-12'
+    }
+    
+    # Add an artifact
+    gen.artifacts.append({
+        'type': 'text',
+        'name': 'Test Doc',
+        'content': 'Test content',
+        'summary': 'Test Doc: summary here'
+    })
+    
+    doc = gen.generate_document()
+    
+    # Check that artifacts are included
+    assert 'Source Materials:' in doc
+    assert 'Test Doc' in doc
+    assert 'Appendix: Source Artifacts' in doc
+    
+    print("✓ Document with artifacts works")
+
+
 def run_all_tests():
     """Run all tests."""
     print("\n" + "="*70)
@@ -139,7 +189,9 @@ def run_all_tests():
         test_full_generation,
         test_filename_generation,
         test_document_structure,
-        test_prompt_function
+        test_prompt_function,
+        test_artifact_ingestion,
+        test_document_with_artifacts
     ]
     
     passed = 0

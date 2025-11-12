@@ -5,9 +5,11 @@ An interactive tool that generates comprehensive technical design documents thro
 ## Features
 
 - **Interactive intake form** - Guided prompts for project information
+- **Artifact ingestion** - Import existing files (requirements, specs, docs) or paste text
 - **Comprehensive structure** - 15 essential sections covering all aspects of technical design
 - **Ready-to-use templates** - Professional markdown format with placeholders
 - **Quick generation** - Create complete design docs in minutes
+- **Copy-paste ready** - Option to display output directly for wiki pasting
 - **Customizable** - Easy to extend and modify for specific needs
 
 ## What is a Design Document?
@@ -58,6 +60,11 @@ The tool will ask you for:
 - Timeline & milestones
 - Budget constraints
 
+**Artifact Ingestion:**
+- Import text files (.txt, .md, .json, .yaml, etc.)
+- Paste multiline text directly
+- Automatically included in appendix with full content
+
 ### Example Session
 
 ```
@@ -83,6 +90,17 @@ Data sensitivity / compliance concerns: GDPR, SOC2
 Timeline / milestones: Q1 2024 launch
 Budget or other constraints: 
 
+=== Artifact Ingestion (Optional) ===
+You can provide existing materials to enhance the design document.
+
+Add artifact? (f)ile, (t)ext, or (s)kip: f
+  Enter file path: /path/to/requirements.txt
+  ✓ Ingested: requirements.txt (450 chars)
+
+Add artifact? (f)ile, (t)ext, or (s)kip: s
+
+✓ Total artifacts ingested: 1
+
 Your name (document author) [Anonymous]: John Doe
 
 ======================================================================
@@ -91,7 +109,39 @@ Generating design document...
 
 ✓ Design document generated successfully!
 ✓ Saved to: user_authentication_service_design_doc.md
+
+Display output for copy-paste to wiki? (y/N): y
+
+======================================================================
+DESIGN DOCUMENT OUTPUT (Copy everything below)
+======================================================================
+
+[Full markdown output shown here for easy copy-paste]
 ```
+
+### Artifact Ingestion
+
+The tool supports importing existing materials:
+
+**File Input:**
+- Text files: `.txt`, `.md`, `.markdown`, `.rst`
+- Data files: `.json`, `.yaml`, `.csv`
+- Any text-based format
+
+**Text Input:**
+- Paste multiline text directly
+- Type 'END' on a new line to finish
+- Useful for requirements, notes, specifications
+
+**Note:** Image files are not directly supported. For images, describe their content or use OCR tools to extract text first.
+
+### Copy-Paste to Wiki
+
+After generation, you can:
+1. Choose to display output directly in terminal
+2. Copy the entire markdown document
+3. Paste directly into your wiki (Confluence, GitHub Wiki, etc.)
+4. Or open the generated `.md` file and copy from there
 
 ## Document Structure
 

@@ -2,19 +2,21 @@
 """
 Design Document Generator
 A tool to create comprehensive technical design documents through interactive prompts.
+Supports file inputs and multiline text for artifact ingestion.
 """
 
 import sys
 import os
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 
 class DesignDocGenerator:
-    """Interactive design document generator."""
+    """Interactive design document generator with artifact ingestion support."""
     
     def __init__(self):
         self.project_data = {}
+        self.artifacts = []  # Store ingested artifacts
         
     def prompt(self, question: str, required: bool = True, default: str = "") -> str:
         """Prompt user for input with optional default value."""
@@ -31,6 +33,127 @@ class DesignDocGenerator:
             
             if required:
                 print("This field is required. Please provide a value.")
+    
+    def prompt_multiline(self, question: str) -> str:
+        """Prompt for multiline input. User enters 'END' on a new line to finish."""
+        print(f"{question}")
+        print("(Enter your text below. Type 'END' on a new line when finished)")
+        lines = []
+        while True:
+            try:
+                line = input()
+                if line.strip() == "END":
+                    break
+                lines.append(line)
+            except EOFError:
+                break
+        return "\n".join(lines)
+    
+    def ingest_file(self, filepath: str) -> Dict[str, str]:
+        """Read and ingest a file as an artifact."""
+        try:
+            if not os.path.exists(filepath):
+                print(f"  ✗ File not found: {filepath}")
+                return None
+            
+            # Get file extension
+            _, ext = os.path.splitext(filepath)
+            ext = ext.lower()
+            
+            # Read text-based files
+            if ext in ['.txt', '.md', '.markdown', '.rst', '.text', '.json', '.yaml', '.yml', '.csv', '']:
+                with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                
+                artifact = {
+                    'type': 'file',
+                    'name': os.path.basename(filepath),
+                    'path': filepath,
+                    'extension': ext,
+                    'content': content,
+                    'summary': self._summarize_content(content, os.path.basename(filepath))
+                }
+                print(f"  ✓ Ingested: {os.path.basename(filepath)} ({len(content)} chars)")
+                return artifact
+            else:
+                print(f"  ⚠ Unsupported file type: {ext}")
+                print(f"    Supported: .txt, .md, .json, .yaml, .csv, and text files")
+                return None
+                
+        except Exception as e:
+            print(f"  ✗ Error reading file: {e}")
+            return None
+    
+    def ingest_text(self, text: str, name: str = "Pasted Text") -> Dict[str, str]:
+        """Ingest pasted text as an artifact."""
+        if not text.strip():
+            return None
+        
+        artifact = {
+            'type': 'text',
+            'name': name,
+            'content': text,
+            'summary': self._summarize_content(text, name)
+        }
+        print(f"  ✓ Ingested: {name} ({len(text)} chars)")
+        return artifact
+    
+    def _summarize_content(self, content: str, name: str) -> str:
+        """Create a brief summary of the content."""
+        lines = content.strip().split('\n')
+        line_count = len(lines)
+        word_count = len(content.split())
+        
+        # Extract first few meaningful lines
+        preview_lines = []
+        for line in lines[:5]:
+            line = line.strip()
+            if line:
+                preview_lines.append(line)
+                if len(preview_lines) >= 3:
+                    break
+        
+        preview = " | ".join(preview_lines[:3])
+        if len(preview) > 100:
+            preview = preview[:97] + "..."
+        
+        return f"{name}: {line_count} lines, {word_count} words. Preview: {preview}"
+    
+    def gather_artifacts(self):
+        """Collect artifacts (files or text) from the user."""
+        print("\n=== Artifact Ingestion (Optional) ===")
+        print("You can provide existing materials to enhance the design document.")
+        print()
+        
+        while True:
+            choice = input("Add artifact? (f)ile, (t)ext, or (s)kip: ").strip().lower()
+            
+            if choice == 's' or choice == 'skip' or not choice:
+                break
+            elif choice == 'f' or choice == 'file':
+                filepath = input("  Enter file path: ").strip()
+                if filepath:
+                    # Remove quotes if user wrapped path in quotes
+                    filepath = filepath.strip('"').strip("'")
+                    artifact = self.ingest_file(filepath)
+                    if artifact:
+                        self.artifacts.append(artifact)
+            elif choice == 't' or choice == 'text':
+                print("  Paste or type your text below (type 'END' on a new line when done):")
+                text = self.prompt_multiline("")
+                if text:
+                    name = input("  Give this artifact a name (optional): ").strip() or "Pasted Text"
+                    artifact = self.ingest_text(text, name)
+                    if artifact:
+                        self.artifacts.append(artifact)
+            else:
+                print("  Invalid choice. Use 'f' for file, 't' for text, or 's' to skip.")
+        
+        if self.artifacts:
+            print(f"\n✓ Total artifacts ingested: {len(self.artifacts)}")
+        else:
+            print("\nNo artifacts provided. Proceeding with manual input only.")
+
     
     def gather_project_info(self):
         """Collect project information through interactive prompts."""
@@ -53,6 +176,9 @@ class DesignDocGenerator:
         self.project_data['security'] = self.prompt("Data sensitivity / compliance concerns", required=False)
         self.project_data['timeline'] = self.prompt("Timeline / milestones & hard deadlines", required=False)
         self.project_data['constraints'] = self.prompt("Budget or other constraints", required=False)
+        
+        # Artifact ingestion
+        self.gather_artifacts()
         
         # Add metadata
         self.project_data['author'] = self.prompt("\nYour name (document author)", default="Anonymous")
@@ -86,6 +212,13 @@ class DesignDocGenerator:
         doc.append("**Scope:** This document covers the technical design, architecture, implementation plan, and key decisions for the project.\n")
         if self.project_data.get('goals'):
             doc.append(f"**Goals:**\n- {self.project_data['goals']}\n")
+        
+        # Add ingested artifacts summary if any
+        if self.artifacts:
+            doc.append("**Source Materials:**\n")
+            for i, artifact in enumerate(self.artifacts, 1):
+                doc.append(f"{i}. {artifact['summary']}\n")
+            doc.append("")
         
         # 3. Key Definitions
         doc.append("## 3. Key Definitions")
@@ -225,6 +358,29 @@ class DesignDocGenerator:
         doc.append("|---------|------|--------|---------|")
         doc.append(f"| 1.0 | {self.project_data['date']} | {self.project_data['author']} | Initial draft |\n")
         
+        # Appendix: Source Artifacts (if any)
+        if self.artifacts:
+            doc.append("---")
+            doc.append("\n## Appendix: Source Artifacts")
+            doc.append("\nThis section contains the full content of ingested artifacts for reference.\n")
+            
+            for i, artifact in enumerate(self.artifacts, 1):
+                doc.append(f"### Artifact {i}: {artifact['name']}")
+                doc.append("")
+                if artifact['type'] == 'file':
+                    doc.append(f"**Source:** `{artifact['path']}`")
+                doc.append("")
+                doc.append("```")
+                # Limit very large content
+                content = artifact['content']
+                if len(content) > 10000:
+                    doc.append(content[:10000])
+                    doc.append(f"\n... (truncated, showing first 10,000 of {len(content)} characters)")
+                else:
+                    doc.append(content)
+                doc.append("```")
+                doc.append("")
+        
         return "\n".join(doc)
     
     def save_document(self, content: str, filename: Optional[str] = None):
@@ -258,11 +414,24 @@ class DesignDocGenerator:
             
             print(f"✓ Design document generated successfully!")
             print(f"✓ Saved to: {filename}\n")
+            
+            # Ask if user wants to see output for copy-paste
+            show_output = input("Display output for copy-paste to wiki? (y/N): ").strip().lower()
+            if show_output in ['y', 'yes']:
+                print("\n" + "="*70)
+                print("DESIGN DOCUMENT OUTPUT (Copy everything below)")
+                print("="*70 + "\n")
+                print(doc_content)
+                print("\n" + "="*70)
+                print("END OF DOCUMENT")
+                print("="*70 + "\n")
+            
             print("You can now:")
+            print(f"  - Copy content from the file: {filename}")
             print("  - Review and edit the document")
             print("  - Add diagrams and detailed specifications")
             print("  - Share with stakeholders for feedback")
-            print("  - Use it as a template for implementation planning\n")
+            print("  - Paste directly into your wiki\n")
             
             return filename
             
