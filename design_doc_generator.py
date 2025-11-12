@@ -185,187 +185,285 @@ class DesignDocGenerator:
         self.project_data['date'] = datetime.now().strftime("%Y-%m-%d")
         
     def generate_document(self) -> str:
-        """Generate the complete design document."""
+        """Generate the complete design document using the new template structure."""
         doc = []
         
         # Title
         doc.append(f"# {self.project_data['project_name']}")
         doc.append(f"_{self.project_data['description']}_\n")
         
-        # Metadata
+        # Revision History
+        doc.append("## Revision History")
         doc.append("---")
-        doc.append(f"**Author:** {self.project_data['author']}")
-        doc.append(f"**Date:** {self.project_data['date']}")
-        doc.append(f"**Audience:** {self.project_data['audience']}")
-        doc.append("---\n")
+        doc.append("| **Revision** | **Date** | **Created By** | **Changes** |")
+        doc.append("| --- | --- | --- | --- |")
+        doc.append(f"| R0 | {self.project_data['date']} | {self.project_data['author']} | Initial draft |\n")
         
-        # 1. Summary
-        doc.append("## 1. Summary")
-        doc.append(f"\n{self.project_data['description']}\n")
+        # Overview
+        doc.append("# Overview")
+        doc.append("---")
+        doc.append("## Purpose")
+        doc.append(f"{self.project_data['description']}\n")
+        doc.append("Provide a clear understanding of the design decisions, architecture, and implementation strategy for the project/module.\n")
+        
+        doc.append("## Scope")
+        doc.append("This document covers the technical design, architecture, implementation plan, and key decisions for the project.\n")
+        if self.project_data.get('audience'):
+            doc.append(f"**Target Audience:** {self.project_data['audience']}\n")
+        
+        doc.append("## Feature Description")
         if self.project_data.get('goals'):
             doc.append(f"**Goals:** {self.project_data['goals']}\n")
-        doc.append("**Recommended Next Steps:** Review this document with stakeholders and approve the proposed design.\n")
-        
-        # 2. Overview
-        doc.append("## 2. Overview")
-        doc.append(f"\n**Purpose:** {self.project_data['description']}\n")
-        doc.append("**Scope:** This document covers the technical design, architecture, implementation plan, and key decisions for the project.\n")
-        if self.project_data.get('goals'):
-            doc.append(f"**Goals:**\n- {self.project_data['goals']}\n")
+        doc.append("*Describe the main functionality of the feature/system being designed.*\n")
         
         # Add ingested artifacts summary if any
         if self.artifacts:
-            doc.append("**Source Materials:**\n")
+            doc.append("## Source Materials")
             for i, artifact in enumerate(self.artifacts, 1):
-                doc.append(f"{i}. {artifact['summary']}\n")
+                doc.append(f"{i}. {artifact['summary']}")
             doc.append("")
         
-        # 3. Key Definitions
-        doc.append("## 3. Key Definitions")
-        doc.append("\n*Add project-specific terminology and abbreviations here.*\n")
+        # Key Definitions
+        doc.append("# Key Definitions")
+        doc.append("---")
+        doc.append("## Key Terms")
+        doc.append("*Define important terms and concepts used throughout this document.*\n")
         
-        # 4. Proposed Design
-        doc.append("## 4. Proposed Design (High-Level)")
-        doc.append("\n### User Flows")
-        doc.append("*Describe the main user flows and interactions.*\n")
-        doc.append("### Components and Responsibilities")
-        doc.append("*List the major components and their responsibilities.*\n")
-        doc.append("### Data Flows")
-        doc.append("*Describe how data moves through the system.*\n")
-        doc.append("```")
-        doc.append("[Sequence diagram placeholder - add your diagram here]")
-        doc.append("```\n")
+        doc.append("## Assumptions")
+        doc.append("*List assumptions that guide the design process.*\n")
         
-        # 5. System Architecture
-        doc.append("## 5. System Architecture")
-        doc.append("\n### Logical Architecture")
-        doc.append("```")
-        doc.append("[Architecture diagram placeholder]")
-        doc.append("```\n")
-        doc.append("### Backend Services")
+        # Proposed UI
+        doc.append("# Proposed UI")
+        doc.append("---")
+        doc.append("*Screenshot of the proposed UI for the feature, along with figma link for further details.*\n")
+        doc.append("*[Insert UI mockups or wireframes here]*\n")
+        
+        # More Feature Details
+        doc.append("# More Feature Details")
+        doc.append("---")
+        doc.append("*Link to Azure wiki made by Product Managers or other feature documentation.*\n")
+        
+        # Revision Details Separator
+        doc.append("## Revision Details")
+        doc.append("---")
+        doc.append("| **Revision** | **Date** | **Created By** | **Changes** |")
+        doc.append("| --- | --- | --- | --- |")
+        doc.append(f"| R0 | {self.project_data['date']} | {self.project_data['author']} | Initial draft |\n")
+        
+        # Proposed Design
+        doc.append("# Proposed Design")
+        doc.append("---")
+        doc.append("## High-Level Approach")
+        doc.append("Explain the high-level approach, breaking it into phases if necessary.\n")
+        
+        doc.append("### Phase 1: [Name]")
+        doc.append("* **Objective:** *Define the objective for this phase*")
+        doc.append("* **Tasks:**")
+        doc.append("  * Task 1")
+        doc.append("  * Task 2\n")
+        
+        doc.append("### Phase 2: [Name]")
+        doc.append("* **Objective:** *Define the objective for this phase*")
+        doc.append("* **Tasks:**")
+        doc.append("  * Task 1")
+        doc.append("  * Task 2\n")
+        
+        doc.append("## Technical Choices")
         if self.project_data.get('tech_stack'):
-            doc.append(f"**Tech Stack:** {self.project_data['tech_stack']}\n")
-        doc.append("*Describe backend services, APIs, and business logic components.*\n")
-        doc.append("### Frontend Considerations")
-        doc.append("*Describe user interface components and client-side logic.*\n")
-        doc.append("### Third-Party Integrations")
-        doc.append("*List external services and APIs to be integrated.*\n")
+            doc.append(f"**Selected Technologies:** {self.project_data['tech_stack']}\n")
+        doc.append("*Explain the frameworks, tools, and services being used, along with reasons for selection.*\n")
         
-        # 6. Database Design
-        doc.append("## 6. Database Design")
-        doc.append("\n### Entity-Relationship Model")
+        # System Architecture
+        doc.append("# System Architecture")
+        doc.append("---")
+        doc.append("## Component Overview")
+        doc.append("Provide an overview of the system's key components and their roles.\n")
+        
+        doc.append("## Flow Diagram")
+        doc.append("*Insert a high-level flow diagram illustrating the data/process flow.*")
         doc.append("```")
-        doc.append("[ER diagram placeholder]")
+        doc.append("[Flow Diagram Placeholder]")
         doc.append("```\n")
-        doc.append("### Tables/Collections")
-        doc.append("*Define database schema, tables, fields, types, and relationships.*\n")
-        doc.append("### Indexes")
-        doc.append("*List required indexes for performance.*\n")
-        doc.append("### Data Retention")
-        doc.append("*Define data retention and archival policies.*\n")
         
-        # 7. API Contracts
-        doc.append("## 7. API Contracts")
-        doc.append("\n### Example Endpoints")
-        doc.append("```")
-        doc.append("GET /api/v1/resource")
-        doc.append("POST /api/v1/resource")
-        doc.append("PUT /api/v1/resource/{id}")
-        doc.append("DELETE /api/v1/resource/{id}")
+        # Database Design
+        doc.append("# Database Design")
+        doc.append("---")
+        doc.append("## Schema Definition")
+        doc.append("```json")
+        doc.append("{")
+        doc.append('  "key": "value",')
+        doc.append('  "example_field": "example_value"')
+        doc.append("}")
         doc.append("```\n")
-        doc.append("### Request/Response Formats")
-        doc.append("*Define API contract details, data models, and validation rules.*\n")
-        doc.append("### Authentication Model")
-        doc.append("*Describe authentication and authorization mechanisms.*\n")
+        doc.append("* **Indexes:**")
+        doc.append("  * Explain the indexes used and why.\n")
         
-        # 8. Failure Scenarios
-        doc.append("## 8. Failure Scenarios & Mitigations")
-        doc.append("\n### Failure Modes")
-        doc.append("*Identify potential failure scenarios and their impact.*\n")
-        doc.append("### Retry/Backoff Strategies")
-        doc.append("*Define retry logic, exponential backoff, and circuit breaker patterns.*\n")
-        doc.append("### Data Recovery")
-        doc.append("*Describe backup and recovery procedures.*\n")
+        # Server Load and Cost Considerations
+        doc.append("# Server Load and Cost Considerations")
+        doc.append("---")
+        doc.append("| **Factor** | **Method 1** | **Method 2** |")
+        doc.append("| --- | --- | --- |")
+        doc.append("| **Connection Load** | Description | Description |")
+        doc.append("| **Data Load** | Description | Description |")
+        doc.append("| **Cost Efficiency** | Description | Description |\n")
         
-        # 9. Security & Privacy
-        doc.append("## 9. Security & Privacy")
-        if self.project_data.get('security'):
-            doc.append(f"\n**Security Requirements:** {self.project_data['security']}\n")
-        doc.append("### Threat Model")
-        doc.append("*Identify security threats and mitigation strategies.*\n")
-        doc.append("### Authentication/Authorization")
-        doc.append("*Define access control mechanisms.*\n")
-        doc.append("### Encryption")
-        doc.append("*Specify encryption requirements for data at rest and in transit.*\n")
-        doc.append("### Secrets Management")
-        doc.append("*Describe how secrets and credentials are managed.*\n")
+        # Development Effort
+        doc.append("# Development Effort")
+        doc.append("---")
+        doc.append("## Phase 1")
+        doc.append("* Estimated Effort: [Value]\n")
+        doc.append("## Phase 2")
+        doc.append("* Estimated Effort: [Value]\n")
         
-        # 10. Non-Functional Requirements
-        doc.append("## 10. Non-Functional Requirements")
-        if self.project_data.get('nfr'):
-            doc.append(f"\n**Requirements:** {self.project_data['nfr']}\n")
-        doc.append("### SLAs & Performance Targets")
-        doc.append("*Define availability, latency, and throughput requirements.*\n")
-        doc.append("### Monitoring & Alerting")
-        doc.append("*Describe monitoring strategy and alert thresholds.*\n")
-        doc.append("### Scale Plan")
-        doc.append("*Define horizontal and vertical scaling strategies.*\n")
+        # Recommendation
+        doc.append("# Recommendation")
+        doc.append("---")
+        doc.append("Provide recommendations based on analysis, including a preferred approach and justifications.\n")
         
-        # 11. Implementation Plan
-        doc.append("## 11. Implementation Plan & Timeline")
+        # Next Steps
+        doc.append("# Next Steps")
+        doc.append("---")
         if self.project_data.get('timeline'):
-            doc.append(f"\n**Timeline:** {self.project_data['timeline']}\n")
-        if self.project_data.get('stakeholders'):
-            doc.append(f"**Stakeholders:** {self.project_data['stakeholders']}\n")
-        doc.append("### Milestones")
-        doc.append("| Milestone | Owner | Deliverables | Target Date |")
-        doc.append("|-----------|-------|--------------|-------------|")
-        doc.append("| Phase 1   | TBD   | TBD          | TBD         |")
-        doc.append("| Phase 2   | TBD   | TBD          | TBD         |")
-        doc.append("| Phase 3   | TBD   | TBD          | TBD         |\n")
-        doc.append("### Dependencies")
-        doc.append("*List external dependencies and blockers.*\n")
+            doc.append(f"**Timeline:** {self.project_data['timeline']}\n")
+        doc.append("1. **Task 1:** Description.")
+        doc.append("2. **Task 2:** Description.\n")
         
-        # 12. Testing & Validation
-        doc.append("## 12. Testing & Validation")
-        doc.append("\n### Testing Strategy")
-        doc.append("- **Unit Tests:** Test individual components and functions")
-        doc.append("- **Integration Tests:** Test component interactions")
-        doc.append("- **End-to-End Tests:** Test complete user flows")
-        doc.append("- **Performance Tests:** Validate performance requirements\n")
-        doc.append("### Test Data")
-        doc.append("*Define test data requirements and generation strategy.*\n")
-        doc.append("### Load Testing Plan")
-        doc.append("*Describe load testing approach and success criteria.*\n")
+        # Appendices
+        doc.append("# Appendices")
+        doc.append("---")
+        doc.append("* Reference documents.")
+        doc.append("* Links to relevant documentation.\n")
         
-        # 13. Recommendations & Trade-offs
-        doc.append("## 13. Recommendations & Trade-offs")
-        doc.append("\n### Options Considered")
-        doc.append("*List alternative approaches that were evaluated.*\n")
-        doc.append("### Rationale")
-        doc.append("*Explain the reasoning behind chosen approach.*\n")
-        doc.append("### Trade-offs")
-        doc.append("*Document known trade-offs and compromises.*\n")
+        # Second Revision Details (for implementation phase)
+        doc.append("## Revision Details")
+        doc.append("---")
+        doc.append("| **Revision** | **Date** | **Created By** | **Changes** |")
+        doc.append("| --- | --- | --- | --- |")
+        doc.append(f"| R1 | {self.project_data['date']} | {self.project_data['author']} | - Added implementation sections |\n")
         
-        # 14. Open Questions
-        doc.append("## 14. Open Questions & Decisions Needed")
-        doc.append("\n- [ ] *List questions requiring stakeholder input*")
-        doc.append("- [ ] *Add proposed default choices where applicable*\n")
+        # Failure Scenarios and Security section
+        doc.append("# Failure Scenarios and Mitigations")
+        doc.append("---")
+        doc.append("## Failure Scenarios\n")
+        doc.append("1. **Scenario 1:**")
+        doc.append("   * Description.")
+        doc.append("   * **Mitigation:** *Describe mitigation strategy*\n")
+        doc.append("2. **Scenario 2:**")
+        doc.append("   * Description.")
+        doc.append("   * **Mitigation:** *Describe mitigation strategy*\n")
         
-        # 15. Revision History
-        doc.append("## 15. Revision History")
-        doc.append("\n| Version | Date | Author | Summary |")
-        doc.append("|---------|------|--------|---------|")
-        doc.append(f"| 1.0 | {self.project_data['date']} | {self.project_data['author']} | Initial draft |\n")
+        doc.append("## Security Implications")
+        if self.project_data.get('security'):
+            doc.append(f"**Security Requirements:** {self.project_data['security']}\n")
+        doc.append("1. **Issue 1:**")
+        doc.append("   * Description.")
+        doc.append("   * **Mitigation:** *Describe mitigation strategy*\n")
+        doc.append("2. **Issue 2:**")
+        doc.append("   * Description.")
+        doc.append("   * **Mitigation:** *Describe mitigation strategy*\n")
+        
+        # Implementation Details Section
+        doc.append("---\n")
+        doc.append("# **Overview**")
+        doc.append("---")
+        doc.append("This document provides a structured approach for documenting the finalized implementation of a feature. It includes the following sections:")
+        doc.append("* Architecture and Design Decisions")
+        doc.append("* Database Schema & Storage Design")
+        doc.append("* Frontend & Backend Implementation")
+        doc.append("* Required dependencies (existing & new)")
+        doc.append("* Business Logic & Functional Details")
+        doc.append("* Security measures and failure handling\n")
+        
+        # Sequence Diagram
+        doc.append("# **Sequence Diagram**")
+        doc.append("---")
+        doc.append("*Insert a sequence diagram illustrating the process flow relevant to this feature.*")
+        doc.append("```")
+        doc.append("[Sequence Diagram Placeholder]")
+        doc.append("```\n")
+        
+        # Implementation Details
+        doc.append("# **Implementation Details**")
+        doc.append("---")
+        doc.append("## **Technologies & Dependencies Required**\n")
+        doc.append("### **Backend:**")
+        if self.project_data.get('tech_stack'):
+            doc.append(f"* {self.project_data['tech_stack']}")
+        doc.append("* List the backend technologies, frameworks, or libraries used and their purpose.\n")
+        doc.append("### **Frontend:**")
+        doc.append("* List the frontend technologies, frameworks, or libraries used and their purpose.\n")
+        
+        # Backend Implementation
+        doc.append("# **Backend Implementation**")
+        doc.append("---")
+        doc.append("## **Core Functionalities**")
+        doc.append("* Describe the key backend functionalities implemented for this feature.")
+        doc.append("* Outline any reusable components or services created.\n")
+        
+        doc.append("## **Endpoints & API Design**")
+        doc.append("| Endpoint | Method | Description |")
+        doc.append("| --- | --- | --- |")
+        doc.append("| `/feature-endpoint` | GET | Fetches data related to this feature |")
+        doc.append("| `/feature-endpoint/create` | POST | Creates a new record related to this feature |")
+        doc.append("| `/feature-endpoint/update` | PUT | Updates an existing record |")
+        doc.append("| `/feature-endpoint/delete` | DELETE | Deletes an existing record |\n")
+        
+        # Frontend Implementation
+        doc.append("# **Frontend Implementation**")
+        doc.append("---")
+        doc.append("## **State Management & UI Components**")
+        doc.append("* Describe how state is managed (Redux, Context API, etc.)")
+        doc.append("* List and describe key UI components used or created for this feature.\n")
+        doc.append("## **Helper Functions & Utilities**")
+        doc.append("* Mention any utility/helper functions developed to support the feature.\n")
+        
+        # Business Logic
+        doc.append("# **Business Logic & Functional Details**")
+        doc.append("---")
+        doc.append("## **Processing Logic**")
+        doc.append("* Explain how the core logic of this feature is structured and executed.")
+        doc.append("* Describe key operations, workflows, or automations involved.\n")
+        
+        # Security Considerations
+        doc.append("# **Security Considerations**")
+        doc.append("---")
+        doc.append("* **Authentication & Authorization:** Describe how security measures are enforced.")
+        doc.append("* **Data Validation & Sanitization:** Explain how input data is validated and sanitized.")
+        doc.append("* **Rate Limiting & API Protection:** Mention any mechanisms to prevent abuse.")
+        doc.append("* **Error Handling & Logging:** Describe the error handling approach used.\n")
+        
+        # Failure Scenarios & Mitigation
+        doc.append("# **Failure Scenarios & Mitigation**")
+        doc.append("---")
+        doc.append("| Failure Scenario | Issue | Mitigation |")
+        doc.append("| --- | --- | --- |")
+        doc.append("| Scenario 1 | Describe issue | Describe mitigation strategy |")
+        doc.append("| Scenario 2 | Describe issue | Describe mitigation strategy |\n")
+        
+        # Next Steps
+        doc.append("# **Next Steps**")
+        doc.append("---")
+        doc.append("## **Pending Implementations**")
+        doc.append("* List any pending or future enhancements required for this feature.\n")
+        doc.append("## **Approval Required For:**")
+        doc.append("* List any outstanding approvals or reviews required before full deployment.\n")
+        
+        # Summary
+        doc.append("# **Summary**")
+        doc.append("---")
+        doc.append("✅ Feature successfully implemented following the structured design principles.")
+        doc.append("✅ Key functionalities, security considerations, and failure handling documented.")
+        doc.append("✅ Pending refinements: List next improvement areas.\n")
         
         # Appendix: Source Artifacts (if any)
         if self.artifacts:
+            doc.append("---\n")
+            doc.append("# Appendix: Source Artifacts")
             doc.append("---")
-            doc.append("\n## Appendix: Source Artifacts")
-            doc.append("\nThis section contains the full content of ingested artifacts for reference.\n")
+            doc.append("This section contains the full content of ingested artifacts for reference.\n")
             
             for i, artifact in enumerate(self.artifacts, 1):
-                doc.append(f"### Artifact {i}: {artifact['name']}")
+                doc.append(f"## Artifact {i}: {artifact['name']}")
                 doc.append("")
                 if artifact['type'] == 'file':
                     doc.append(f"**Source:** `{artifact['path']}`")

@@ -26,8 +26,8 @@ def test_basic_generation():
     assert len(doc) > 1000, "Document should have substantial content"
     assert "Test API" in doc
     assert "REST API for testing" in doc
-    assert "## 1. Summary" in doc
-    assert "## 15. Revision History" in doc
+    assert "## Revision History" in doc
+    assert "# Overview" in doc
     print("✓ Basic generation works")
 
 
@@ -93,21 +93,25 @@ def test_document_structure():
     doc = gen.generate_document()
     
     required_sections = [
-        "## 1. Summary",
-        "## 2. Overview",
-        "## 3. Key Definitions",
-        "## 4. Proposed Design",
-        "## 5. System Architecture",
-        "## 6. Database Design",
-        "## 7. API Contracts",
-        "## 8. Failure Scenarios",
-        "## 9. Security & Privacy",
-        "## 10. Non-Functional Requirements",
-        "## 11. Implementation Plan",
-        "## 12. Testing & Validation",
-        "## 13. Recommendations",
-        "## 14. Open Questions",
-        "## 15. Revision History"
+        "## Revision History",
+        "# Overview",
+        "# Key Definitions",
+        "# Proposed UI",
+        "# More Feature Details",
+        "# Proposed Design",
+        "# System Architecture",
+        "# Database Design",
+        "# Server Load and Cost Considerations",
+        "# Development Effort",
+        "# Recommendation",
+        "# Next Steps",
+        "# Appendices",
+        "# Failure Scenarios and Mitigations",
+        "# **Implementation Details**",
+        "# **Backend Implementation**",
+        "# **Frontend Implementation**",
+        "# **Security Considerations**",
+        "# **Summary**"
     ]
     
     for section in required_sections:
@@ -171,7 +175,7 @@ def test_document_with_artifacts():
     doc = gen.generate_document()
     
     # Check that artifacts are included
-    assert 'Source Materials:' in doc
+    assert 'Source Materials' in doc
     assert 'Test Doc' in doc
     assert 'Appendix: Source Artifacts' in doc
     
