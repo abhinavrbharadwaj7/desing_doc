@@ -8,31 +8,28 @@
 
 | Revision | Date | Created By | Changes |
 |----------|------|------------|---------|
-| R1 | 11/09/2025 | Abhinav R Bharadwaj | Planning Strategy for Customer Request Manager (CRM) |
-| R2 | 12/11/2025 | Copilot Agent | Created comprehensive design document from R1 planning artifacts with role-based access and enhanced features |
+| R1 | 17/09/2025 | Abhinav R Bharadwaj | Updated Planning strategy for Customer Request Manager (CRM) |
+| R2 | 12/11/2025 | Copilot Agent | Created comprehensive design document from R1 planning artifacts |
 
 ---
 
 ## 1. Summary
 
-The Customer Request Manager (CRM) is a centralized platform for tracking and managing customer compliance and sustainability requests within the Acquis Compliance Platform. It replaces manual tracking methods (email, Excel) with a structured system that provides role-based visibility and ownership. Managers can create, assign, cancel, and monitor all requests, while users focus on executing assigned tasks. The system provides real-time dashboards with KPIs, regulatory heat maps for resource optimization, comprehensive audit trails, and automated business rule enforcement.
+The Customer Request Manager (CRM) is a centralized platform for tracking and managing customer compliance and sustainability requests within the Acquis Compliance Platform. It replaces manual tracking methods with a unified tenant portal where all users can create, assign, monitor, and collaborate on customer requests. The system provides real-time visibility, transparent workflows, and comprehensive audit trails while maintaining strict tenant-level data isolation.
 
 **Key Outcomes:**
-- Centralized request tracking replacing manual methods
-- Role-based access control (Managers vs Users)
-- Real-time dashboards with KPIs and regulatory heat maps
-- Resource optimization through demand analytics
-- Automated business rule enforcement (mandatory cancellation reasons, overdue flagging)
+- Centralized request tracking with unified tenant portal
+- Role-agnostic access - all tenant users can manage requests
+- Real-time dashboards with KPIs and visual analytics
 - Comprehensive audit logging for all actions
 - File upload/management with Azure Blob Storage integration
-- Export capabilities for reporting and compliance
+- Export capabilities for reporting and analysis
 
 **Recommended Next Steps:**
 1. Complete R1 development and deploy to staging
 2. Conduct user acceptance testing with pilot customers
-3. Validate regulatory heat map accuracy with compliance team
-4. Plan R2 enhancements: advanced workflows, notifications, integrations
-5. Establish monitoring and SLA tracking
+3. Plan R2 enhancements: advanced workflows, notifications, integrations
+4. Establish monitoring and SLA tracking
 
 ---
 
@@ -40,22 +37,19 @@ The Customer Request Manager (CRM) is a centralized platform for tracking and ma
 
 ### 2.1 Purpose
 
-The CRM tool addresses the critical need for organized tracking of customer compliance and sustainability requests. Currently, many organizations rely on manual methods (spreadsheets, email threads) which lack centralization, accountability, and real-time visibility. The CRM provides a structured system with role-based access where managers can oversee all requests and users can focus on their assigned tasks, ensuring clear ownership, efficient resource allocation, and complete audit trails.
+The CRM tool addresses the critical need for organized tracking of customer compliance and sustainability requests. Currently, many organizations rely on manual methods (spreadsheets, email threads) which lack centralization, accountability, and real-time visibility. The CRM provides a structured system where teams can efficiently intake, assign, track, and resolve customer requests while maintaining complete audit trails.
 
 ### 2.2 Scope
 
 **In Scope:**
-- Role-based access control (Manager and User roles)
-- Request creation and assignment by managers
+- Request creation with duplicate validation
+- Assignment within tenant (no role restrictions)
 - Request lifecycle management (create, update, cancel)
 - Soft deletion with mandatory cancellation reasons
 - File upload and attachment management
 - Summary dashboard with KPIs and visualizations
-- **All Requests view (Manager-only)** with filtering and search
-- **My Tasks view** for assigned requests (All users)
-- Regulatory heat map for resource planning and optimization
-- Overdue request flagging and prioritization
-- Automated business rule enforcement
+- All Requests view with filtering and search
+- My Tasks view for assigned requests
 - Export functionality (CSV/Excel)
 - Audit logging for all actions
 - Multi-tenant data isolation
@@ -94,109 +88,34 @@ The CRM tool addresses the critical need for organized tracking of customer comp
 | **CRM** | Customer Request Manager - the compliance request tracking system |
 | **Request** | A customer-submitted compliance or sustainability inquiry/requirement |
 | **Tenant** | Individual customer organization in the multi-tenant SaaS platform |
-| **Manager** | User with full access to create, assign, view all requests, and access analytics |
-| **User** | User with access to view and work on assigned requests only (My Tasks) |
 | **Assignee** | Tenant user responsible for resolving a request |
 | **Soft Delete** | Marking request as cancelled while preserving data for audit |
-| **Request Type** | Category of request (Declaration, Clarification, Other) |
-| **Regulation** | Specific compliance regulation (RoHS, REACH, TSCA PBT, Prop 65, Conflict Minerals, FMD) |
+| **Request Type** | Category of request (e.g., Compliance Data, Sustainability Report, Audit) |
+| **Regulation** | Specific compliance regulation referenced in request (REACH, RoHS, CMRT, etc.) |
 | **Submitted Via** | Channel through which request was received (Email, Phone, Portal, Meeting) |
 | **KPI** | Key Performance Indicator - metrics for measuring system performance |
-| **Heat Map** | Visual representation of regulatory request frequency for resource planning |
 | **Azure Blob Storage** | Cloud storage service for file attachments (uflpa container) |
-| **Overdue Request** | Request past its deadline, automatically flagged for prioritization |
 
 ---
 
-## 4. Key Features & Business Rules
+## 4. Proposed Design (High-Level)
 
-### 4.1 Centralized Request Tracking
-- All customer requests stored in one centralized system, replacing manual tracking via email or Excel
-- **All Requests** page where managers can view, filter, and manage every request
-- Complete visibility of request lifecycle from creation to closure
-
-### 4.2 Enhanced Dashboard and Visibility
-- Summary Dashboard delivers **key metrics** for instant insight:
-  - Total Requests
-  - Average Resolve Time
-  - Open vs Closed breakdown
-  - Request type distribution
-- Visual charts:
-  - **Donut Chart:** Request completion status (Open, In Progress, Resolved, Closed, On Hold)
-  - **Line Graph:** Trends in request volumes over time with Yearly/Monthly filters
-  - **Bar Chart:** Types of requests (Declaration, Clarification, Other)
-  - **Regulatory Heat Map:** Frequency of requests by regulation, color-coded monthly for resource planning
-
-### 4.3 Request Ownership and Task Management
-- Each request is assigned to a responsible user
-- **My Tasks** tab enables users to see requests assigned to them
-- Users can export their workload for reporting
-- Ownership, deadlines, and status kept visible for both users and managers
-
-### 4.4 Automation and Reporting
-- Automatic logging of all actions and status changes for traceability
-- Export features for requests and assigned tasks support compliance reporting and analytics
-- Completion status updates enforced automatically
-- Business rules (overdue flagging, required cancellation reasons) automated
-
-### 4.5 Resource Optimization
-- **Regulatory demand heat maps** help optimize team resources
-- Shows monthly volume for each regulation (RoHS, REACH, TSCA PBT, Prop 65, Conflict Minerals, FMD)
-- Color-coded visualization for quick identification of high-demand areas
-- Insights provided through dashboard visualizations and downloadable reports
-
-### 4.6 Smart Request Form Handling
-- All key fields managed by dropdowns, calendar pickers, and validation logic
-- Validations ensure:
-  - Mandatory fields are completed
-  - Date constraints are respected
-  - Cancellation reasons are entered when required
-- Form supports adding, editing, and cancelling requests with mandatory justification
-
-### 4.7 Business Rule Enforcement
-- **Cancellation must include a reason** (justification required)
-- **Overdue requests flagged** for prioritization
-- **Completion status auto-updated** when requests are resolved or closed
-- **Heat map generation automated** by system logic
-- **Role-based access enforced** at all layers
-
-### 4.8 Data Inputs and Outputs
-**Inputs:**
-- Customer name
-- Request type (Declaration, Clarification, Other)
-- Submission source
-- Regulation (RoHS, REACH, TSCA PBT, Prop 65, Conflict Minerals, FMD)
-- Assigned manager
-- Important dates (request date, deadline)
-- Comments and attachments
-
-**Outputs:**
-- Request status and completion time
-- Visual charts and analytics
-- Regulatory heat maps
-- Exported files for reporting
-- Audit trails
-
----
-
-## 5. Proposed Design (High-Level)
-
-### 5.1 User Flow: Creating and Resolving a Request (Manager)
+### 4.1 User Flow: Creating and Resolving a Request
 
 ```
-Manager logs into CRM
+User logs into CRM
     ↓
 Navigate to Summary Dashboard (landing page)
     ↓
-View KPIs, charts, and regulatory heat map
+View KPIs and charts for tenant requests
     ↓
-Click "All Requests" to see full list (Manager-only access)
+Click "All Requests" to see full list
     ↓
 Click "Add Request" button
     ↓
 Fill Request Form (customer, type, regulations, assignee, deadline)
     ↓
-System validates mandatory fields and date constraints
+System validates for duplicates
     ↓
 Upload attachments (optional)
     ↓
@@ -204,43 +123,17 @@ Save request → System generates Request ID
     ↓
 Request appears in "All Requests" and assignee's "My Tasks"
     ↓
-Assignee (User) updates status, adds comments, uploads files
+Assignee updates status, adds comments, uploads files
     ↓
 Request progresses: Open → In Progress → Resolved → Closed
     ↓
-System auto-flags overdue requests
-    ↓
 All actions logged in audit trail
 ```
 
-### 5.2 User Flow: User Working on Assigned Task
+### 4.2 User Flow: Cancelling a Request
 
 ```
-User logs into CRM
-    ↓
-Navigate to Summary Dashboard (personal metrics visible)
-    ↓
-View My Open/Closed Tasks, Overdue Tasks, Personal completion trends
-    ↓
-Click "My Tasks" tab
-    ↓
-View only requests assigned to them
-    ↓
-Select a request to work on
-    ↓
-Update status (Open → In Progress → Resolved)
-    ↓
-Add comments or upload files
-    ↓
-Export My Tasks for personal reporting
-    ↓
-All actions logged in audit trail
-```
-
-### 5.3 User Flow: Cancelling a Request (Manager)
-
-```
-Manager navigates to "All Requests"
+User navigates to "All Requests"
     ↓
 Select one or more requests (checkbox)
     ↓
@@ -257,20 +150,18 @@ If confirmed: Requests marked as cancelled (soft delete)
 Audit log records cancellation reason and user
 ```
 
-### 5.4 Component Responsibilities
+### 4.3 Component Responsibilities
 
 | Component | Responsibility |
 |-----------|---------------|
-| **Summary Dashboard** | Display KPIs, charts, regulatory heat map, and personal task summaries; Role-based views (Managers see all metrics, Users see personal metrics) |
-| **All Requests View (Manager-only)** | Comprehensive table of all tenant requests with filters, search, and actions; Create new requests, cancel requests |
-| **Request Form** | Intake new requests with validation, mandatory field checks, date constraints, and file uploads |
-| **My Tasks View (All users)** | Personalized view of requests assigned to logged-in user; Update status, add comments, upload files, export tasks |
-| **Cancel Request Popup** | Handle soft deletion with mandatory reason capture (minimum 10 characters) |
-| **Regulatory Heat Map** | Visual representation of request frequency by regulation, color-coded monthly for resource planning |
-| **Export Service** | Generate CSV/Excel exports of request data; Role-based filtering (Managers: all requests, Users: my tasks) |
-| **Audit Logger** | Record all user actions with timestamp, user, role, and details |
-| **File Storage Service** | Manage file uploads to Azure Blob Storage (uflpa container) |
-| **Business Rule Engine** | Enforce overdue flagging, mandatory cancellation reasons, status transitions, role-based access |
+| **Summary Dashboard** | Display KPIs, charts, and personal task summaries for quick insights |
+| **All Requests View** | Comprehensive table of all tenant requests with filters, search, and actions |
+| **Request Form** | Intake new requests with validation, duplicate detection, and file uploads |
+| **My Tasks View** | Personalized view of requests assigned to logged-in user |
+| **Cancel Request Popup** | Handle soft deletion with mandatory reason capture |
+| **Export Service** | Generate CSV/Excel exports of request data |
+| **Audit Logger** | Record all user actions with timestamp, user, and details |
+| **File Storage Service** | Manage file uploads to Azure Blob Storage |
 
 ### 4.4 Data Flow
 
@@ -309,12 +200,10 @@ Audit log records cancellation reason and user
 │  ┌────────────┐  ┌────────────┐  ┌────────────────┐         │
 │  │  Summary   │  │    All     │  │   My Tasks     │         │
 │  │ Dashboard  │  │  Requests  │  │     View       │         │
-│  │(Role-based)│  │ (Manager)  │  │  (All users)   │         │
 │  └────────────┘  └────────────┘  └────────────────┘         │
 │  ┌────────────┐  ┌────────────┐  ┌────────────────┐         │
 │  │  Request   │  │   Cancel   │  │  FusionCharts  │         │
-│  │    Form    │  │   Popup    │  │  + Heat Map    │         │
-│  │ (Manager)  │  │ (Manager)  │  │  Visualizations│         │
+│  │    Form    │  │   Popup    │  │  Visualizations│         │
 │  └────────────┘  └────────────┘  └────────────────┘         │
 └─────────────────────────┬────────────────────────────────────┘
                           │ REST API (Fastify)
@@ -325,13 +214,9 @@ Audit log records cancellation reason and user
 │  │  Service   │  │  Service   │  │    Logger      │         │
 │  └────────────┘  └────────────┘  └────────────────┘         │
 │  ┌────────────┐  ┌────────────┐  ┌────────────────┐         │
-│  │  Export    │  │   Auth +   │  │   Validation   │         │
-│  │  Service   │  │   RBAC     │  │    Service     │         │
+│  │  Export    │  │   Auth     │  │   Validation   │         │
+│  │  Service   │  │  Service   │  │    Service     │         │
 │  └────────────┘  └────────────┘  └────────────────┘         │
-│  ┌────────────┐  ┌────────────┐                             │
-│  │  Business  │  │  Heat Map  │                             │
-│  │   Rules    │  │  Generator │                             │
-│  └────────────┘  └────────────┘                             │
 └─────────────────┬───────────────────────┬───────────────────┘
                   │                       │
          ┌────────▼─────────┐    ┌───────▼──────────┐
@@ -345,27 +230,16 @@ Audit log records cancellation reason and user
 
 **Fastify Server:**
 - REST API endpoints for CRUD operations
-- Request validation with mandatory field checks
+- Request validation and duplicate detection
 - Multi-tenant database routing
-- JWT authentication and role-based authorization (Manager vs User)
+- JWT authentication and authorization
 - Error handling and logging
 
 **Request Service:**
 - Request lifecycle management (create, update, cancel)
+- Duplicate validation based on customer + type + regulation
 - Status transitions with validation rules
 - Assignment management
-- Overdue request detection and flagging
-
-**Business Rules Engine:**
-- Enforce mandatory cancellation reasons (min 10 characters)
-- Auto-flag overdue requests
-- Validate status transitions
-- Enforce role-based access at service layer
-
-**Heat Map Generator:**
-- Calculate monthly request frequency by regulation
-- Generate color-coded heat map data
-- Aggregate data for resource planning insights
 
 **File Service:**
 - File upload to Azure Blob Storage (uflpa container)
@@ -386,38 +260,29 @@ Audit log records cancellation reason and user
 ### 5.3 Frontend Considerations
 
 **React Components:**
-- **Summary Dashboard:** KPI cards, donut charts, line charts, bar charts, regulatory heat maps; Role-based views (Managers see all tenant metrics, Users see personal metrics)
-- **All Requests Table (Manager-only):** Sortable, filterable, searchable data grid with create, cancel, and export actions
-- **Request Form (Manager-only):** Multi-field form with mandatory field validation, date constraints, dropdown selectors, calendar pickers, and file upload
-- **My Tasks (All users):** Filtered view of assigned requests with status update, comment, file upload, and export capabilities
-- **Cancel Popup (Manager-only):** Modal dialog with mandatory reason input (min 10 characters validation)
-- **Regulatory Heat Map:** Color-coded monthly visualization of regulation frequency (RoHS, REACH, TSCA PBT, Prop 65, Conflict Minerals, FMD)
+- **Summary Dashboard:** KPI cards, donut charts, line charts, bar charts, heat maps
+- **All Requests Table:** Sortable, filterable, searchable data grid with actions
+- **Request Form:** Multi-field form with validation and file upload
+- **My Tasks:** Filtered view of assigned requests
+- **Cancel Popup:** Modal dialog with reason input
 
 **State Management:**
-- React Context API for global state (user session, tenant info, role)
-- Role-based rendering and route protection
+- React Context API for global state (user session, tenant info)
 - Local component state for form inputs and UI interactions
 - Ant Design form state management
-
-**Role-Based Access Control (Frontend):**
-- Route guards for manager-only pages (All Requests, Request Form)
-- Conditional rendering based on user role
-- Manager role: Full access to all features
-- User role: Access to My Tasks, view personal dashboard metrics
 
 **Performance Optimizations:**
 - Pagination for large request lists (20 per page)
 - Lazy loading for charts and visualizations
 - Debounced search input
 - Memoized components for static data
-- Heat map data caching (refresh every 5 minutes)
 
 **Visualization:**
 - FusionCharts for interactive charts
-- Donut chart: Request status distribution (Open, In Progress, Resolved, Closed, On Hold)
-- Line chart: Request trends over time with Yearly/Monthly filters
-- Bar chart: Request type breakdown (Declaration, Clarification, Other)
-- Heat map: Regulatory demand by month, color-coded for quick resource planning
+- Donut chart: Request status distribution
+- Line chart: Request trends over time
+- Bar chart: Request type breakdown
+- Heat map: Regulation distribution
 
 ### 5.4 Third-Party Integrations
 
@@ -442,12 +307,11 @@ Audit log records cancellation reason and user
   customer: String,                 // Customer name/company
   submittedVia: String,             // "Email" | "Phone" | "Portal" | "Meeting"
   requestDate: Date,                // Date request was received
-  requestType: String,              // "Declaration" | "Clarification" | "Other"
-  regulations: [String],            // Array of applicable regulations (RoHS, REACH, TSCA PBT, Prop 65, Conflict Minerals, FMD)
+  requestType: String,              // Type of request (e.g., "Compliance Data")
+  regulations: [String],            // Array of applicable regulations
   assignedTo: String,               // User email of assignee
   deadline: Date,                   // Target completion date
-  status: String,                   // "Open" | "In Progress" | "Resolved" | "Closed" | "On Hold"
-  isOverdue: Boolean,               // Auto-calculated flag for past deadline
+  status: String,                   // "Open" | "In Progress" | "Resolved" | "Closed" | "Cancelled"
   comments: String,                 // Additional notes/context
   attachments: [                    // Array of file metadata
     {
@@ -458,15 +322,13 @@ Audit log records cancellation reason and user
       fileSize: Number              // Size in bytes
     }
   ],
-  cancellationReason: String,       // Required if status is "Cancelled" (min 10 characters)
-  cancelledBy: String,              // User who cancelled (must be Manager)
+  cancellationReason: String,       // Required if status is "Cancelled"
+  cancelledBy: String,              // User who cancelled
   cancelledAt: Date,                // Cancellation timestamp
-  createdBy: String,                // User who created request (Manager)
-  createdByRole: String,            // "Manager" | "User"
+  createdBy: String,                // User who created request
   createdAt: Date,                  // MongoDB timestamp
   updatedAt: Date,                  // MongoDB timestamp
-  lastModifiedBy: String,           // User who last updated
-  lastModifiedByRole: String        // "Manager" | "User"
+  lastModifiedBy: String            // User who last updated
 }
 ```
 
@@ -479,8 +341,7 @@ Audit log records cancellation reason and user
   requestId: String,                // Related request ID
   userId: String,                   // User who performed action
   userName: String,                 // User display name
-  userRole: String,                 // "Manager" | "User"
-  action: String,                   // "CREATE" | "UPDATE" | "CANCEL" | "EXPORT" | "UPLOAD" | "STATUS_CHANGE"
+  action: String,                   // "CREATE" | "UPDATE" | "CANCEL" | "EXPORT" | "UPLOAD"
   details: Object,                  // Action-specific details
   timestamp: Date,                  // When action occurred
   ipAddress: String,                // User IP (optional)
@@ -498,8 +359,6 @@ db.requests.createIndex({ tenantNumber: 1, assignedTo: 1, status: 1 })
 db.requests.createIndex({ tenantNumber: 1, customer: 1 })
 db.requests.createIndex({ tenantNumber: 1, requestType: 1 })
 db.requests.createIndex({ tenantNumber: 1, deadline: 1 })
-db.requests.createIndex({ tenantNumber: 1, isOverdue: 1, status: 1 })
-db.requests.createIndex({ tenantNumber: 1, regulations: 1 })
 
 // Audit logs collection
 db.auditLogs.createIndex({ tenantNumber: 1, requestId: 1, timestamp: -1 })
@@ -527,8 +386,6 @@ db.auditLogs.createIndex({ timestamp: 1 }, { expireAfterSeconds: 220752000 })
 
 **Endpoint:** `POST /api/crm/requests`
 
-**Role Required:** Manager
-
 **Headers:**
 ```
 Authorization: Bearer <token>
@@ -541,7 +398,7 @@ Content-Type: application/json
   "customer": "Acme Corporation",
   "submittedVia": "Email",
   "requestDate": "2025-11-10",
-  "requestType": "Declaration",
+  "requestType": "Compliance Data",
   "regulations": ["REACH", "RoHS"],
   "assignedTo": "john.doe@company.com",
   "deadline": "2025-11-30",
