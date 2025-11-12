@@ -27,6 +27,30 @@ A comprehensive design document for the Full Material Disclosure (FMD) Notificat
 
 ---
 
+### [Customer Request Manager (CRM)](./CRM_Design_Document.md)
+
+A comprehensive design document for the Customer Request Manager (CRM) - a centralized platform for tracking and managing customer compliance and sustainability requests.
+
+**Quick Links:**
+- [Overview & Scope](./CRM_Design_Document.md#2-overview)
+- [System Architecture](./CRM_Design_Document.md#5-system-architecture)
+- [API Contracts](./CRM_Design_Document.md#7-api-contracts)
+- [Implementation Timeline](./CRM_Design_Document.md#11-implementation-plan--timeline)
+- [Testing Strategy](./CRM_Design_Document.md#12-testing--validation)
+
+**Key Features:**
+- Centralized request tracking with unified tenant portal
+- Role-agnostic access for all tenant users
+- Real-time dashboards with KPIs and visual analytics (FusionCharts)
+- File upload/management with Azure Blob Storage
+- Comprehensive audit logging for all actions
+- Export capabilities (CSV/Excel)
+- Soft deletion with mandatory cancellation reasons
+
+**Status:** R1 In Progress (Week 3-4 of 8) | R2 Enhancements Planned Q1 2026
+
+---
+
 ## Document Structure
 
 All design documents in this repository follow a standardized template including:
@@ -97,6 +121,7 @@ When adding new design documents:
 ```
 ├── README.md                               # This file
 ├── FMD_Notification_System_Design.md       # FMD notification system design doc
+├── CRM_Design_Document.md                  # Customer Request Manager design doc
 └── .github/
     └── agents/
         └── my-agent.agent.md               # ProjectDesignDoc-Agent configuration
