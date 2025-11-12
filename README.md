@@ -4,9 +4,32 @@ This repository contains technical design documents for various systems and feat
 
 ## Available Design Documents
 
-### [FMD Notification System](./FMD_Notification_System_Design.md)
+### [FMD Notification System - Initial Design](./FMD_Notification_Initial_Design.md)
 
-A comprehensive design document for the Full Material Disclosure (FMD) Notification System - a real-time, scalable notification solution for the Acquis Compliance Platform.
+A concise initial design document for the Full Material Disclosure (FMD) Notification System following the R0/R1 template format. This document provides an overview of design decisions, architecture, and implementation strategy.
+
+**Quick Links:**
+- [Overview & Feature Description](./FMD_Notification_Initial_Design.md#overview)
+- [Proposed UI](./FMD_Notification_Initial_Design.md#proposed-ui)
+- [Technical Architecture](./FMD_Notification_Initial_Design.md#technical-architecture)
+- [Implementation Approach](./FMD_Notification_Initial_Design.md#implementation-approach)
+- [Failure Scenarios & Security](./FMD_Notification_Initial_Design.md#failure-scenarios--security-implications)
+
+**Key Sections:**
+- Revision history with R0/R1 tracking
+- Feature description with 6 core capabilities
+- Notification format and trigger events
+- Notification grouping logic (5-minute window)
+- Technical architecture diagram
+- Phase 1 (Complete), Phase 2 (Email - Planned), Phase 3 (Future)
+
+**Status:** R1 | Phase 1 Complete | Phase 2 Planned Q1 2026
+
+---
+
+### [FMD Notification System - Comprehensive](./FMD_Notification_System_Design.md)
+
+A comprehensive technical design document for the Full Material Disclosure (FMD) Notification System - a real-time, scalable notification solution for the Acquis Compliance Platform.
 
 **Quick Links:**
 - [Overview & Scope](./FMD_Notification_System_Design.md#2-overview)
